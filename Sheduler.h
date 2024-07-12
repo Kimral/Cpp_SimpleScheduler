@@ -15,12 +15,9 @@ public:
 	void Start() {
 		running = true;
 
-        // Изменяем размер вектора потоков до необходимого количества
-        threads_.resize(threads_count_);
-
         std::unique_lock<std::mutex> lock(threads_mutex_);
-        for (size_t i = 0; i < threads_count_; ++i) {
-            threads_[i] = std::thread([this, i] {
+        while (threads_count_--) {
+            threads_.emplace_back([this] {
                 while (running) {
                     TaskFunction task;
                     {
@@ -33,8 +30,9 @@ public:
                     }
                     if (task) {
                         try {
-                            std::cout << "Thread id: " << i  << " " << std::this_thread::get_id() << std::endl;
+                            std::cout << "Thread id: " << std::this_thread::get_id() << std::endl;
                             task();
+                            dequeCondition.notify_all();
                         }
                         catch (...) {
                             std::cerr << "Exception caught during task execution.\n";
@@ -46,10 +44,11 @@ public:
 	}
 
     ~Sheduler() {
-        for(;;) {
-            if (tasks_.empty())
-                break;
-        }
+        std::unique_lock<std::mutex> lock(tasks_mutex_);
+        deque_open = false;
+        dequeCondition.wait(lock, [this] { 
+            return deque_open == false && tasks_.empty(); 
+        });
 
         running = false;
         for (auto& t : threads_) {
@@ -76,6 +75,7 @@ private:
     bool deque_open = true;
     size_t threads_count_ = 0;
     std::condition_variable taskCondition;
+    std::condition_variable dequeCondition;
 
 	std::mutex tasks_mutex_;
 	std::deque<TaskFunction> tasks_;
