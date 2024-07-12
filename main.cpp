@@ -7,7 +7,7 @@
 #include "ShedulersPool.h"
 
 int main() {
-	ShedulersPool<std::function<void()>> pool;
+	SchedulersPool<std::function<void()>> pool;
 	pool.RegisterNewSheduler(1, 8);
 
 	pool.Start();

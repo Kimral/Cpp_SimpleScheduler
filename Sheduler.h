@@ -7,10 +7,10 @@
 #include <mutex>
 
 template <class TaskFunction>
-class Sheduler {
+class Scheduler {
 public:
-    Sheduler() = default;
-    explicit Sheduler(size_t threads_count) : threads_count_{ threads_count } {}
+    Scheduler() = default;
+    explicit Scheduler(size_t threads_count) : threads_count_{ threads_count } {}
 
 	void Start() {
 		running = true;
@@ -43,7 +43,7 @@ public:
         }
 	}
 
-    ~Sheduler() {
+    ~Scheduler() {
         std::unique_lock<std::mutex> lock(tasks_mutex_);
         deque_open = false;
         dequeCondition.wait(lock, [this] { 

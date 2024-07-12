@@ -6,9 +6,9 @@
 #include "Sheduler.h"
 
 template <class TaskFunction>
-class ShedulersPool {
+class SchedulersPool {
 public:
-	ShedulersPool() = default;
+	SchedulersPool() = default;
 
 	void RegisterNewSheduler(int sheduler_id, size_t threads_count) {
 		if (!shedulers_.count(sheduler_id)) {
@@ -30,5 +30,5 @@ public:
 	}
 
 private:
-	std::unordered_map<int, Sheduler<TaskFunction>> shedulers_;
+	std::unordered_map<int, Scheduler<TaskFunction>> shedulers_;
 };
