@@ -3,54 +3,49 @@
 #include <unordered_map>
 #include <chrono>
 #include <random>
+#include <iostream>
 
-#include "ShedulersPool.h"
-
-using VoidScheduler = Scheduler<std::function<void()>>;
+#include "Sheduler.h"
 
 std::chrono::milliseconds GetMilliseconds(int min, int max) {
-	std::mt19937_64 eng{ std::random_device{}() };
-	std::uniform_int_distribution<> dist{ min, max };
+	static std::mt19937_64 eng{ std::random_device{}() };
+	static std::uniform_int_distribution<> dist{ min, max };
 	return std::chrono::milliseconds{dist(eng)};
 }
 
 int main() {
-	SchedulersPool pool;
-	pool.RegisterNewSheduler(1, new VoidScheduler{8});
-	pool.RegisterNewSheduler(2, new VoidScheduler{4});
-	pool.RegisterNewSheduler(3, new VoidScheduler{16});
+	Scheduler first{ 8 };
+	Scheduler second{ 8 };
+	Scheduler third{ 8 };;
 
-	pool.Start();
+	first.Start();
+	second.Start();
+	third.Start();
 
 	using namespace std::chrono_literals;
-	int counter = 80;
-	while(counter--) {
+
+	for (size_t index = 0; index < 80; ++index) {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
 			std::cout << "Scheduler [1] ";
-		};
-		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[1]);
-		scheduler->AddTask(task);
+			};
+		first.AddTask(task);
 	}
 
-	counter = 30;
-	while (counter--) {
+	for (size_t index = 0; index < 30; ++index) {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
 			std::cout << "Scheduler [2] ";
 		};
-		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[2]);
-		scheduler->AddTask(task);
+		second.AddTask(task);
 	}
 
-	counter = 100;
-	while (counter--) {
+	for (size_t index = 0; index < 100; ++index) {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
 			std::cout << "Scheduler [3] ";
 		};
-		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[3]);
-		scheduler->AddTask(task);
+		third.AddTask(task);
 	}
 
 	return 0;

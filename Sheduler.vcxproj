@@ -129,7 +129,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ShedulersPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sheduler.h" />

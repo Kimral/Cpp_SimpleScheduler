@@ -6,16 +6,19 @@
 #include <functional>
 #include <mutex>
 
+using TaskFunction = std::function<void()>;
+
 class SchedulerInterface {
 public:
-    SchedulerInterface() {};
-    virtual ~SchedulerInterface() {};
+    SchedulerInterface() = default;
+    virtual ~SchedulerInterface() = default;
 
     virtual void Start() = 0;
     virtual void Stop() = 0;
+
+    virtual void AddTask(TaskFunction task) = 0;
 };
 
-template <class TaskFunction>
 class Scheduler : public SchedulerInterface {
 public:
     Scheduler() = default;
@@ -74,7 +77,7 @@ public:
 		running = false;
 	}
 
-    void AddTask(TaskFunction task) {
+    void AddTask(TaskFunction task) override {
         if (!deque_open)
             return;
         std::unique_lock<std::mutex> lock(tasks_mutex_);
