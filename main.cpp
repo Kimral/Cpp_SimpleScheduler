@@ -6,9 +6,12 @@
 
 #include "ShedulersPool.h"
 
+using VoidScheduler = Scheduler<std::function<void()>>;
+
 int main() {
-	SchedulersPool<std::function<void()>> pool;
-	pool.RegisterNewSheduler(1, 8);
+	SchedulersPool pool;
+	pool.RegisterNewSheduler(1, new VoidScheduler{8});
+	pool.RegisterNewSheduler(2, new VoidScheduler{1});
 
 	pool.Start();
 
@@ -20,7 +23,18 @@ int main() {
 			std::uniform_int_distribution<> dist{ 200, 1000 };
 			std::this_thread::sleep_for(std::chrono::milliseconds{ dist(eng) });
 		};
-		pool.PushTask(1, task);
+		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[1]);
+		scheduler->AddTask(task);
+	}
+	counter = 50;
+	while (counter--) {
+		std::function<void()> task = []() {
+			std::mt19937_64 eng{ std::random_device{}() };
+			std::uniform_int_distribution<> dist{ 200, 1000 };
+			std::this_thread::sleep_for(std::chrono::milliseconds{ dist(eng) });
+		};
+		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[2]);
+		scheduler->AddTask(task);
 	}
 
 	using namespace std::chrono_literals;

@@ -6,13 +6,37 @@
 #include <functional>
 #include <mutex>
 
+class SchedulerInterface {
+public:
+    SchedulerInterface() {};
+    virtual ~SchedulerInterface() {};
+
+    virtual void Start() = 0;
+    virtual void Stop() = 0;
+};
+
 template <class TaskFunction>
-class Scheduler {
+class Scheduler : public SchedulerInterface {
 public:
     Scheduler() = default;
     explicit Scheduler(size_t threads_count) : threads_count_{ threads_count } {}
 
-	void Start() {
+    ~Scheduler() override {
+        std::unique_lock<std::mutex> lock(tasks_mutex_);
+        deque_open = false;
+        dequeCondition.wait(lock, [this] {
+            return deque_open == false && tasks_.empty();
+        });
+
+        running = false;
+        for (auto& t : threads_) {
+            if (t.joinable()) {
+                t.join();
+            }
+        }
+    }
+
+	void Start() override {
 		running = true;
 
         std::unique_lock<std::mutex> lock(threads_mutex_);
@@ -43,22 +67,7 @@ public:
         }
 	}
 
-    ~Scheduler() {
-        std::unique_lock<std::mutex> lock(tasks_mutex_);
-        deque_open = false;
-        dequeCondition.wait(lock, [this] { 
-            return deque_open == false && tasks_.empty(); 
-        });
-
-        running = false;
-        for (auto& t : threads_) {
-            if (t.joinable()) {
-                t.join();
-            }
-        }
-    }
-
-	void Stop() {
+	void Stop() override {
 		running = false;
 	}
 
