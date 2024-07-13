@@ -40,11 +40,11 @@ public:
     }
 
     Worker& GetNextWorkerForTask(size_t index) {
-        size_t worker_id = (index + offset_) % workers_.size();
+        size_t worker_id = (index + offset_.load()) % workers_.size();
         return workers_.at(worker_id);
     }
 
 private:
-    std::atomic<std::size_t> offset_{};
+    std::atomic<std::size_t> offset_{0};
     std::vector<Worker> workers_;
 };

@@ -27,7 +27,7 @@ public:
                 Task task;
                 if(queue_.try_pop(task)) {
                     try {
-                        std::cout << " Thread id: " << std::this_thread::get_id() << std::endl;
+                        //std::cout << " Thread id: " << std::this_thread::get_id() << std::endl;
                         task();
                     }
                     catch (...) {

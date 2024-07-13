@@ -23,7 +23,7 @@ int main() {
 	for (size_t index = 0; index < 100; ++index) {
 		first.push([index]() {
 			std::this_thread::sleep_for(GetMilliseconds(100));
-			std::cout << "test: " << index;
+			std::cout << "test: " << index << std::endl;
 		});
 	}
 	first.Start();
