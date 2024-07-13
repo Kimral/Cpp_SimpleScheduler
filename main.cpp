@@ -18,11 +18,12 @@ int main() {
 	SchedulersPool pool;
 	pool.RegisterNewSheduler(1, new VoidScheduler{8});
 	pool.RegisterNewSheduler(2, new VoidScheduler{4});
+	pool.RegisterNewSheduler(3, new VoidScheduler{16});
 
 	pool.Start();
 
-	int counter = 300;
 	using namespace std::chrono_literals;
+	int counter = 80;
 	while(counter--) {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
@@ -31,7 +32,8 @@ int main() {
 		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[1]);
 		scheduler->AddTask(task);
 	}
-	counter = 50;
+
+	counter = 30;
 	while (counter--) {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
@@ -41,7 +43,15 @@ int main() {
 		scheduler->AddTask(task);
 	}
 
-	using namespace std::chrono_literals;
-	std::cout << "OK" << std::endl;
+	counter = 100;
+	while (counter--) {
+		std::function<void()> task = []() {
+			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
+			std::cout << "Scheduler [3] ";
+			};
+		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[3]);
+		scheduler->AddTask(task);
+	}
+
 	return 0;
 }

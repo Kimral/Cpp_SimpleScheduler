@@ -22,15 +22,18 @@ public:
     explicit Scheduler(size_t threads_count) : threads_count_{ threads_count } {}
 
     ~Scheduler() override {
-        std::unique_lock<std::mutex> lock(tasks_mutex_);
         deque_open = false;
-        dequeCondition.wait(lock, [this] {
-            return deque_open == false && tasks_.empty();
-        });
-
+        {
+            std::unique_lock<std::mutex> lock(tasks_mutex_);
+            dequeCondition.wait(lock, [this] {
+                return tasks_.empty();
+            });
+        }
         running = false;
+        taskCondition.notify_all();
         for (auto& t : threads_) {
             if (t.joinable()) {
+                std::cout << "thread " << t.get_id() << std::endl;
                 t.join();
             }
         }
