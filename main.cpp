@@ -48,7 +48,7 @@ int main() {
 		std::function<void()> task = []() {
 			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
 			std::cout << "Scheduler [3] ";
-			};
+		};
 		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[3]);
 		scheduler->AddTask(task);
 	}

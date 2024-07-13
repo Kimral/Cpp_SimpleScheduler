@@ -53,13 +53,13 @@ public:
                         if (!tasks_.empty()) {
                             task = std::move(tasks_.front());
                             tasks_.pop_front();
+                            dequeCondition.notify_all();
                         }
                     }
                     if (task) {
                         try {
                             std::cout << " Thread id: " << std::this_thread::get_id() << std::endl;
                             task();
-                            dequeCondition.notify_all();
                         }
                         catch (...) {
                             std::cerr << "Exception caught during task execution.\n";
