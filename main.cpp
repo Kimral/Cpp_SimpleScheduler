@@ -8,10 +8,16 @@
 
 using VoidScheduler = Scheduler<std::function<void()>>;
 
+std::chrono::milliseconds GetMilliseconds(int min, int max) {
+	std::mt19937_64 eng{ std::random_device{}() };
+	std::uniform_int_distribution<> dist{ min, max };
+	return std::chrono::milliseconds{dist(eng)};
+}
+
 int main() {
 	SchedulersPool pool;
 	pool.RegisterNewSheduler(1, new VoidScheduler{8});
-	pool.RegisterNewSheduler(2, new VoidScheduler{1});
+	pool.RegisterNewSheduler(2, new VoidScheduler{4});
 
 	pool.Start();
 
@@ -19,9 +25,8 @@ int main() {
 	using namespace std::chrono_literals;
 	while(counter--) {
 		std::function<void()> task = []() {
-			std::mt19937_64 eng{ std::random_device{}() };
-			std::uniform_int_distribution<> dist{ 200, 1000 };
-			std::this_thread::sleep_for(std::chrono::milliseconds{ dist(eng) });
+			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
+			std::cout << "Scheduler [1] ";
 		};
 		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[1]);
 		scheduler->AddTask(task);
@@ -29,9 +34,8 @@ int main() {
 	counter = 50;
 	while (counter--) {
 		std::function<void()> task = []() {
-			std::mt19937_64 eng{ std::random_device{}() };
-			std::uniform_int_distribution<> dist{ 200, 1000 };
-			std::this_thread::sleep_for(std::chrono::milliseconds{ dist(eng) });
+			std::this_thread::sleep_for(GetMilliseconds(200, 1000));
+			std::cout << "Scheduler [2] ";
 		};
 		VoidScheduler* scheduler = dynamic_cast<VoidScheduler*>(pool[2]);
 		scheduler->AddTask(task);

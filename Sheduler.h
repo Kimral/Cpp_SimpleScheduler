@@ -54,7 +54,7 @@ public:
                     }
                     if (task) {
                         try {
-                            std::cout << "Thread id: " << std::this_thread::get_id() << std::endl;
+                            std::cout << " Thread id: " << std::this_thread::get_id() << std::endl;
                             task();
                             dequeCondition.notify_all();
                         }
