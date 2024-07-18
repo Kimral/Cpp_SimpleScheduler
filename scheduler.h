@@ -7,8 +7,11 @@ class Scheduler {
 public:
     Scheduler() = default;
     Scheduler(size_t threads_count) {
-        for (size_t index = 0; index < threads_count; ++index) {
-            workers_.emplace_back();
+        workers_.resize(threads_count);
+    }
+    ~Scheduler() {
+        for (auto& worker : workers_) {
+            worker.finish();
         }
     }
 
@@ -20,18 +23,17 @@ public:
 
     void push(Task t)
     {
-        for (size_t i = 0; i < 100; ++i)
-        {
+        for (size_t i = 0; i < 100; ++i) {
             for (size_t index = 0; index < workers_.size(); ++index) {
                 Worker& worker = GetNextWorkerForTask(index);
-                if (worker.try_push(t)) {
+                if (worker.GetState()->try_push(t)) {
                     OffsetIncrement();
                     return;
                 }
             }
         }
 
-        workers_.front().push(t);
+        workers_.front().GetState()->push(t);
         OffsetIncrement();
     }
 

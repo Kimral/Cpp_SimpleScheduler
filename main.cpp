@@ -17,15 +17,25 @@ std::chrono::milliseconds GetMilliseconds(int time) {
 	return std::chrono::milliseconds{ time };
 }
 
-int main() {
+void CountTime(std::function<void()> func) {
+	auto begin = std::chrono::steady_clock::now();
+	func();
+	auto end = std::chrono::steady_clock::now();
 
-	Scheduler first{5};
-	for (size_t index = 0; index < 100; ++index) {
-		first.push([index]() {
-			std::this_thread::sleep_for(GetMilliseconds(100));
-			std::cout << "test: " << index << std::endl;
-		});
-	}
-	first.Start();
+	double time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / 1000.0;
+	std::cout << "The time: " << std::fixed << std::setprecision(3) << time << " sec" << std::endl;
+}
+
+int main() {
+	CountTime([]() {
+		Scheduler first{ 400 };
+		for (size_t index = 0; index < 30000; ++index) {
+			first.push([index]() {
+				std::this_thread::sleep_for(GetMilliseconds(100));
+				std::cout << "TASK: " << index << std::endl;
+			});
+		}
+		first.Start();
+	});
 	return 0;
 }
