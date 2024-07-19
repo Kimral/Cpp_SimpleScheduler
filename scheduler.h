@@ -6,9 +6,7 @@
 class Scheduler {
 public:
     Scheduler() = default;
-    Scheduler(size_t threads_count) {
-        workers_.resize(threads_count);
-    }
+    Scheduler(size_t workers_count) : workers_{ workers_count } {}
     ~Scheduler() {
         for (auto& worker : workers_) {
             worker.finish();
