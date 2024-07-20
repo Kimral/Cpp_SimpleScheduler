@@ -4,6 +4,7 @@
 #include <chrono>
 #include <random>
 #include <iostream>
+#include <iomanip>
 
 #include "scheduler.h"
 
@@ -28,14 +29,13 @@ void CountTime(std::function<void()> func) {
 
 int main() {
 	CountTime([]() {
-		Scheduler first{ 400 };
-		for (size_t index = 0; index < 30000; ++index) {
-			first.push([index]() {
-				std::this_thread::sleep_for(GetMilliseconds(100));
+		Scheduler workgroup{ std::thread::hardware_concurrency() };
+		for (size_t index = 0; index < 5000; ++index) {
+			workgroup.push([index]() {
 				std::cout << "TASK: " << index << std::endl;
 			});
 		}
-		first.Start();
+		workgroup.Start();
 	});
 	return 0;
 }

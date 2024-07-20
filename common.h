@@ -2,4 +2,6 @@
 
 #include <functional>
 
-using Task = std::function<void()>;
+#include "moveOnlyFunction.h"
+
+using Task = move_only_function;
