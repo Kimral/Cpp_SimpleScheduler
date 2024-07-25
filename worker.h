@@ -11,7 +11,7 @@ public:
     }
 
     void Start() {
-        state_.get()->thread_ = std::thread(std::ref(*state_));
+        state_->thread_ = std::thread(std::ref(*state_));
     }
 
     std::unique_ptr<ThreadState>& GetState() {

@@ -30,7 +30,7 @@ void CountTime(std::function<void()> func) {
 int main() {
 	CountTime([]() {
 		Scheduler workgroup{ std::thread::hardware_concurrency() };
-		for (size_t index = 0; index < 5000; ++index) {
+		for (size_t index = 0; index < 10000; ++index) {
 			workgroup.push([index]() {
 				std::cout << "TASK: " << index << std::endl;
 			});

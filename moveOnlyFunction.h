@@ -25,40 +25,52 @@ struct move_only_function
         Func item_;
     };
 
-    move_only_function() : func_{ nullptr } {}
-    ~move_only_function() { delete func_; }
+    move_only_function() : lambda_{ nullptr }, function_{ nullptr } {}
+    ~move_only_function() { delete lambda_; }
 
     template<typename F>
-    move_only_function(F&& f) noexcept : func_{ new TaskInner<F>{std::forward<F>(f)} } {}
+    move_only_function(F&& f) noexcept : lambda_{ new TaskInner<F>{std::forward<F>(f)} }, function_{ nullptr } {}
+
+    move_only_function(void(*function)()) : lambda_{ nullptr }, function_{ function } {}
 
     move_only_function(const move_only_function& other) = delete;
     move_only_function& operator=(const move_only_function& other) = delete;
 
-    move_only_function(move_only_function&& other) noexcept : func_{ other.func_ } {
-        other.func_ = nullptr;
+    move_only_function(move_only_function&& other) noexcept : lambda_{ other.lambda_ }, function_{ other.function_ } {
+        other.lambda_ = nullptr;
     }
 
     move_only_function& operator=(move_only_function&& other) noexcept {
         if (this == &other)
             return *this;
 
-        delete func_;
-        func_ = other.func_;
-        other.func_ = nullptr;
+        delete lambda_;
+        lambda_ = other.lambda_;
+        function_ = other.function_;
+        other.lambda_ = nullptr;
         return *this;
     }
 
     void operator()() {
-        if (func_ == nullptr)
-            throw std::bad_function_call{};
+        if (lambda_ != nullptr) {
+            lambda_->call();
+            return;
+        }
 
-        func_->call();
+        if (function_ != nullptr) {
+            function_();
+            return;
+        }
+
+        throw std::bad_function_call{};
     }
 
     void swap(move_only_function& other) noexcept {
-        std::swap(func_, other.func_);
+        std::swap(lambda_, other.lambda_);
+        std::swap(function_, other.function_);
     }
 
 private:
-    Callable* func_;
+    Callable* lambda_;
+    void (*function_)();
 };
