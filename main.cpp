@@ -36,18 +36,15 @@ void CountTime(std::function<void()> func) {
 
 int main() {
 	CountTime([]() {
+		std::cout << "Threads count: " << std::thread::hardware_concurrency() << std::endl;
 		Scheduler workgroup{ std::thread::hardware_concurrency() }; 
 		for (size_t index = 0; index < 10000; ++index) {
 			workgroup.Push([index]() {
-
 				size_t count = GetRandomeValue(2000000, 4000000);
-				// Имитация работы
-				while (--count)
+				while (--count) // Имитация работы
 				{
 					size_t i = count;
 				}
-
-				std::cout << "TASK: " << index << std::endl;
 			});
 		}
 		workgroup.Start();

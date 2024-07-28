@@ -14,7 +14,7 @@ ThreadState::~ThreadState()
 	finish();
 	if (thread_.joinable())
 		thread_.join();
-	std::cout << "ThreadState" << std::this_thread::get_id() << std::endl;
+	std::cout << "tasks_done: " << tasks_done << std::endl;
 }
 
 void ThreadState::AwaitNonEmptyState()
@@ -31,8 +31,8 @@ void ThreadState::operator()()
 	for (;;) {
 		if (queue_.try_pop(task)) {
 			try {
-				std::cout << "Thread:" << std::this_thread::get_id();
 				task();
+				tasks_done++;
 				continue;
 			}
 			catch (...) {
@@ -41,6 +41,7 @@ void ThreadState::operator()()
 		}
 		else if (TryToSteal(task)) {
 			task();
+			tasks_done++;
 			continue;
 		}
 		else if (finish_.load()) {
@@ -61,10 +62,9 @@ bool ThreadState::TryToSteal(Task& t)
 		const auto nextWorkerIndex = (++diff + relativePosition_) % pool_.size();
 		if (pool_.at(nextWorkerIndex).TryStealTask(t))
 		{
-			std::cout << "STEALLED!!!" << std::endl;
+			std::cout << relativePosition_ << " stealled from " << nextWorkerIndex <<  std::endl;
 			return true;
 		}
-			
 	}
 	return false;
 }

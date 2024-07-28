@@ -19,6 +19,8 @@ public:
 	std::thread& GetThread();
 
 private:
+	size_t tasks_done{ 0 };
+
     const std::vector<Worker>& pool_;
 	size_t relativePosition_{static_cast<size_t>(-1)};
 

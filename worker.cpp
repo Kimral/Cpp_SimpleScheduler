@@ -1,5 +1,7 @@
 #include "worker.h"
 
+#include <iostream>
+
 #include "ThreadState.h"
 
 Worker::Worker(const std::vector<Worker>& pool, size_t relativePosition) :
@@ -33,5 +35,9 @@ std::unique_ptr<ThreadState>& Worker::GetState()
 
 bool Worker::TryStealTask(Task& t) const
 {
-	return (isAlive) ? state_->try_pop(t) : false;
+	if(isAlive)
+	{
+		return state_->try_pop(t);
+	}
+	return false;
 }
