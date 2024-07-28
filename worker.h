@@ -1,23 +1,35 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
+#include "common.h"
 #include "ThreadState.h"
+
+class ThreadState;
 
 class Worker {
 public:
-    Worker() : state_{std::make_unique<ThreadState>()} {};
-   
-    void finish() {
-        state_->finish();
-    }
+    Worker(const std::vector<Worker>& pool, size_t relativePosition);
+    ~Worker();
 
-    void Start() {
-        state_->thread_ = std::thread(std::ref(*state_));
-    }
+	Worker(const Worker& other)
+	{
+        isAlive = other.isAlive;
+	};
 
-    std::unique_ptr<ThreadState>& GetState() {
-        return state_;
+    void finish();
+
+    void Start();
+
+    std::unique_ptr<ThreadState>& GetState();
+
+    bool TryStealTask(Task& t) const
+    {
+        return (isAlive) ? state_->try_pop(t) : false;
     }
 
 private:
+    bool isAlive = true;
     std::unique_ptr<ThreadState> state_ = nullptr;
 };

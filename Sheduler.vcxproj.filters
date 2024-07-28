@@ -21,9 +21,21 @@
     <ClCompile Include="common.h">
       <Filter>Файлы заголовков</Filter>
     </ClCompile>
+    <ClCompile Include="scheduler.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="threadState.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="worker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="threadsafeQueue.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ThreadsafeQueue.h">
+    <ClInclude Include="threadsafeQueue.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="worker.h">
@@ -32,7 +44,7 @@
     <ClInclude Include="scheduler.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadState.h">
+    <ClInclude Include="threadState.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="moveOnlyFunction.h">

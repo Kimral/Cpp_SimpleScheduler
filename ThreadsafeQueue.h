@@ -11,44 +11,13 @@ public:
     ThreadsafeQueue() = default;
     ThreadsafeQueue(const ThreadsafeQueue& other) = delete;
     ThreadsafeQueue& operator=(const ThreadsafeQueue& other) = delete;
+    ThreadsafeQueue(ThreadsafeQueue&& other) noexcept;
+    ThreadsafeQueue& operator=(ThreadsafeQueue&& other) noexcept;
 
-    ThreadsafeQueue(ThreadsafeQueue&& other) noexcept {
-        queue_.swap(other.queue_);
-    };
-
-    ThreadsafeQueue& operator=(ThreadsafeQueue&& other) noexcept {
-        queue_.swap(other.queue_);
-        return *this;
-    };  
-
-    bool empty() {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return queue_.empty();
-    }
-
-    bool try_push(Task& t) {
-        std::unique_lock lock{ mutex_, std::try_to_lock };
-        if (!lock)
-            return false;
-
-        queue_.emplace(std::move(t));
-        return true;
-    }
-
-    void push(Task& t) {
-        std::lock_guard lock{ mutex_ };
-        queue_.emplace(std::move(t));
-    }
-
-    bool try_pop(Task& t) {
-        std::lock_guard lock{ mutex_ };
-        if (queue_.empty())
-            return false;
-
-        t = std::move(queue_.front());
-        queue_.pop();
-        return true;
-    }
+    bool empty();
+    bool try_push(Task& t);
+    void push(Task& t);
+    bool try_pop(Task& t);
 
 private:
     std::queue<Task> queue_;

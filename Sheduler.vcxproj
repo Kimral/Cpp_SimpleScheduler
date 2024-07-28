@@ -188,12 +188,16 @@
   <ItemGroup>
     <ClCompile Include="common.h" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="scheduler.cpp" />
+    <ClCompile Include="threadsafeQueue.cpp" />
+    <ClCompile Include="threadState.cpp" />
+    <ClCompile Include="worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="moveOnlyFunction.h" />
     <ClInclude Include="scheduler.h" />
-    <ClInclude Include="ThreadsafeQueue.h" />
-    <ClInclude Include="ThreadState.h" />
+    <ClInclude Include="threadsafeQueue.h" />
+    <ClInclude Include="threadState.h" />
     <ClInclude Include="worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

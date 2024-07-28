@@ -1,62 +1,27 @@
 #pragma once
 
-#include "ThreadsafeQueue.h"
+#include "threadsafeQueue.h"
+class Worker;
 
 class ThreadState {
 public:
-	ThreadState() = default;
+	ThreadState(const std::vector<Worker>& pool, size_t relativePosition);
+    ~ThreadState();
 
-    ~ThreadState() {
-        finish();
-        if (thread_.joinable())
-            thread_.join();
-    }
+	void AwaitNonEmptyState();
+	bool TryToSteal(Task& t);
+	void operator()();
+	void finish();
+	bool try_push(Task& t);
+	bool try_pop(Task& t);
+	void push(Task& t);
 
-    void AwaitNonEmptyState() {
-        std::unique_lock<std::mutex> lock(mutex_);
-        condition_.wait(lock, [this]() {
-            return finish_ || !queue_.empty();
-        });
-    }
+	std::thread& GetThread();
 
-	void operator()() {
-        Task task;
-        for (;;) {
-            if (queue_.try_pop(task)) {
-                try {
-                    task();
-                    continue;
-                }
-                catch (...) {
-                    std::cerr << "Exception caught during task execution.\n";
-                }
-            }
-            else if (finish_.load()) {
-                break;
-            }
-            AwaitNonEmptyState();
-        }
-	}
+private:
+    const std::vector<Worker>& pool_;
+	size_t relativePosition_{static_cast<size_t>(-1)};
 
-    void finish() {
-        finish_.store(true);
-        condition_.notify_one();
-    }
-
-    bool try_push(Task& t) {
-        auto result = queue_.try_push(t);
-        if (result) {
-            condition_.notify_one();
-        }
-        return result;
-    }
-
-    void push(Task& t) {
-        queue_.push(t);
-        condition_.notify_one();
-    }
-
-public:
     std::atomic<bool> finish_{ false };
     std::mutex mutex_;
 	std::condition_variable condition_;

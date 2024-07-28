@@ -8,6 +8,13 @@
 
 #include "scheduler.h"
 
+static int GetRandomeValue(int min, int max)
+{
+	static std::mt19937_64 eng{ std::random_device{}() };
+	static std::uniform_int_distribution<> dist{ min, max };
+	return dist(eng);
+}
+
 std::chrono::milliseconds GetMilliseconds(int min, int max) {
 	static std::mt19937_64 eng{ std::random_device{}() };
 	static std::uniform_int_distribution<> dist{ min, max };
@@ -29,9 +36,17 @@ void CountTime(std::function<void()> func) {
 
 int main() {
 	CountTime([]() {
-		Scheduler workgroup{ std::thread::hardware_concurrency() };
+		Scheduler workgroup{ std::thread::hardware_concurrency() }; 
 		for (size_t index = 0; index < 10000; ++index) {
-			workgroup.push([index]() {
+			workgroup.Push([index]() {
+
+				size_t count = GetRandomeValue(2000000, 4000000);
+				// Имитация работы
+				while (--count)
+				{
+					size_t i = count;
+				}
+
 				std::cout << "TASK: " << index << std::endl;
 			});
 		}
