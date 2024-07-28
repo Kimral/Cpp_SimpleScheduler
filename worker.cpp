@@ -11,6 +11,11 @@ Worker::~Worker()
 	isAlive = false;
 }
 
+Worker::Worker(const Worker& other)
+{
+	isAlive = other.isAlive;
+}
+
 void Worker::finish()
 {
 	state_->finish();
@@ -24,4 +29,9 @@ void Worker::Start()
 std::unique_ptr<ThreadState>& Worker::GetState()
 {
 	return state_;
+}
+
+bool Worker::TryStealTask(Task& t) const
+{
+	return (isAlive) ? state_->try_pop(t) : false;
 }

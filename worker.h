@@ -13,21 +13,11 @@ public:
     Worker(const std::vector<Worker>& pool, size_t relativePosition);
     ~Worker();
 
-	Worker(const Worker& other)
-	{
-        isAlive = other.isAlive;
-	};
-
+	Worker(const Worker& other);;
     void finish();
-
     void Start();
-
     std::unique_ptr<ThreadState>& GetState();
-
-    bool TryStealTask(Task& t) const
-    {
-        return (isAlive) ? state_->try_pop(t) : false;
-    }
+    bool TryStealTask(Task& t) const;
 
 private:
     bool isAlive = true;
